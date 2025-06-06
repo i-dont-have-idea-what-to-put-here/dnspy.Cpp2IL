@@ -42,6 +42,19 @@ public sealed record Expression(ExpressionKind Kind, IEmit? Left = null, IEmit? 
             case ExpressionKind.CompareGe:
             case ExpressionKind.CompareLt:
             case ExpressionKind.CompareLe:
+            case ExpressionKind.Move:
+            case ExpressionKind.Exchange:
+            case ExpressionKind.ShiftStack:
+            case ExpressionKind.Push:
+            case ExpressionKind.Pop:
+            case ExpressionKind.SignExtend:
+            case ExpressionKind.Interrupt:
+            case ExpressionKind.Negate:
+            case ExpressionKind.Multiply:
+            case ExpressionKind.Divide:
+            case ExpressionKind.ShiftLeft:
+            case ExpressionKind.ShiftRight:
+            case ExpressionKind.Subtract:
             case ExpressionKind.MemberAccess:
                 Left?.Write(output);
                 output.Write(GetOperator(Kind), BoxedTextColor.Operator);
@@ -210,6 +223,19 @@ public sealed record Expression(ExpressionKind Kind, IEmit? Left = null, IEmit? 
             ExpressionKind.CompareLt => " < ",
             ExpressionKind.CompareLe => " <= ",
             ExpressionKind.MemberAccess => ".",
+            ExpressionKind.Move => " = ", // why = ?
+            ExpressionKind.Exchange => " <-> ",
+            ExpressionKind.ShiftStack => " >> ",
+            ExpressionKind.Push => " -> ",
+            ExpressionKind.Pop => " <- ",
+            ExpressionKind.SignExtend => " :> ",
+            ExpressionKind.Interrupt => " ! ",
+            ExpressionKind.Negate => " - ",
+            ExpressionKind.Multiply => " * ",
+            ExpressionKind.Divide => " / ",
+            ExpressionKind.ShiftLeft => " << ",
+            ExpressionKind.ShiftRight => " >> ",
+            ExpressionKind.Subtract => " - ",
             _ => throw new NotImplementedException()
         };
     }   
@@ -234,4 +260,19 @@ public enum ExpressionKind : byte
     Goto,
     
     MemberAccess,
+    
+    // ISIL specific operations
+    Move,
+    Exchange,
+    ShiftStack,
+    Push,
+    Pop,
+    SignExtend,
+    Interrupt,
+    Negate,
+    Multiply,
+    Divide,
+    ShiftLeft,
+    ShiftRight,
+    Subtract
 }

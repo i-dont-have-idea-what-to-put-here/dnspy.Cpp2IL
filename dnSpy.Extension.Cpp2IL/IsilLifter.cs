@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Cpp2IL.Core.Api;
 using Cpp2IL.Core.InstructionSets;
 using Cpp2IL.Core.ISIL;
 using Cpp2IL.Core.Model.Contexts;
@@ -113,6 +114,8 @@ public static class IsilLifter
             case IsilMnemonic.JumpIfGreaterOrEqual:
             case IsilMnemonic.JumpIfLessOrEqual:
             case IsilMnemonic.JumpIfLess:
+            case IsilMnemonic.JumpIfSign:
+            case IsilMnemonic.JumpIfNotSign:
             {
                 var result = new Expression(ExpressionKind.If, previous, new Expression(ExpressionKind.Goto, TransformOperand(operands[0]), Index: instruction.InstructionIndex), Index: instruction.InstructionIndex)
                     .FixIf(instruction.OpCode.Mnemonic);
@@ -121,7 +124,7 @@ public static class IsilLifter
             }
             
             case IsilMnemonic.Call:
-            case IsilMnemonic.CallNoReturn:
+            case IsilMnemonic.CallNoReturn: // DONT FUCKING TOUCH THIS, IT WORKS, I KNOW IT DOES, KYS
             {
                 var args = new IEmit[instruction.Operands.Length - 1];
                 for (var i = 1; i < instruction.Operands.Length; i++)
@@ -176,24 +179,91 @@ public static class IsilLifter
             case IsilMnemonic.Not:
                 return new Expression(ExpressionKind.Assign, TransformOperand(instruction.Operands[0]), new Expression(ExpressionKind.Not, TransformOperand(instruction.Operands[0]), Index: instruction.InstructionIndex), instruction.InstructionIndex);
 
+            case IsilMnemonic.Neg:
+                return new Expression(ExpressionKind.Assign, TransformOperand(instruction.Operands[0]), new Expression(ExpressionKind.Negate, TransformOperand(instruction.Operands[0]), Index: instruction.InstructionIndex), instruction.InstructionIndex);
+
             case IsilMnemonic.LoadAddress:
             {
                 var expr = TransformOperand(instruction.Operands[1]);
                 if (expr is Expression { Kind: ExpressionKind.Deref, Left: var e })
                     expr = e;
-                return new Expression(ExpressionKind.Assign, TransformOperand(instruction.Operands[0]), expr);
+                return new Expression(ExpressionKind.Assign, TransformOperand(instruction.Operands[0]), expr, instruction.InstructionIndex);
             }
             
             case IsilMnemonic.Nop:
                 return Expression.NopShared;
                 
             case IsilMnemonic.Exchange:
+            {
+                // Exchange: a, b -> temp = a, a = b, b = temp (bad realization) or just exchange
+                var op1 = TransformOperand(operands[0]);
+                var op2 = TransformOperand(operands[1]);
+                return new Expression(ExpressionKind.Exchange, op1, op2, instruction.InstructionIndex);
+            }
+            
             case IsilMnemonic.ShiftStack:
+            {
+                var offset = (int)((IsilImmediateOperand)operands[0].Data).Value;
+                return new Expression(ExpressionKind.Assign, 
+                    new Register("rsp"), 
+                    new Expression(ExpressionKind.Add, 
+                        new Register("rsp"), 
+                        new Immediate(offset), 
+                        instruction.InstructionIndex), 
+                    instruction.InstructionIndex);
+            }
+            
             case IsilMnemonic.Push:
+            {
+                var value = TransformOperand(operands[0]);
+                var stackPtr = new Register("rsp");
+                var decrement = new Expression(ExpressionKind.Assign, 
+                    stackPtr, 
+                    new Expression(ExpressionKind.Sub, 
+                        stackPtr, 
+                        new Immediate(GetWordSize(context.AppContext.InstructionSet)), // Word size
+                        instruction.InstructionIndex), 
+                    instruction.InstructionIndex);
+                var store = new Expression(ExpressionKind.Assign, 
+                    new Expression(ExpressionKind.Deref, stackPtr), 
+                    value, 
+                    instruction.InstructionIndex);
+                return new InlineEmitBlock("; ") { Items = { decrement, store } };
+            }
+            
             case IsilMnemonic.Pop:
+            {
+                var dest = TransformOperand(operands[0]);
+                var stackPtr = new Register("rsp");
+                var load = new Expression(ExpressionKind.Assign, 
+                    dest, 
+                    new Expression(ExpressionKind.Deref, stackPtr), 
+                    instruction.InstructionIndex);
+                var increment = new Expression(ExpressionKind.Assign, 
+                    stackPtr, 
+                    new Expression(ExpressionKind.Add, 
+                        stackPtr, 
+                        new Immediate(GetWordSize(context.AppContext.InstructionSet)), 
+                        instruction.InstructionIndex), 
+                    instruction.InstructionIndex);
+                return new InlineEmitBlock("; ") { Items = { load, increment } };
+            }
+            
             case IsilMnemonic.SignExtend:
+            {
+                var dest = TransformOperand(operands[0]);
+                var src = TransformOperand(operands[1]);
+                return new Expression(ExpressionKind.Assign,
+                    dest,
+                    new Expression(ExpressionKind.SignExtend,
+                        src,
+                        Index: instruction.InstructionIndex),
+                    instruction.InstructionIndex);
+            }
+            
             case IsilMnemonic.Interrupt:
             case IsilMnemonic.NotImplemented:
+            case IsilMnemonic.Invalid:
             default:
                 return new Unsupported(instruction.ToString());
         }
@@ -316,13 +386,17 @@ public static class IsilLifter
             
         if (funcPtr == kfa.il2cpp_vm_object_is_inst)
             return KnownFunctionReference.IL2CppVmObjectIsInst;
-            
+        /* or
         if (funcPtr == kfa.il2cpp_vm_object_is_inst)
             return KnownFunctionReference.AddrPInvokeLookup;
+        */
+            
+        if (funcPtr == kfa.il2cpp_resolve_icall)
+            return KnownFunctionReference.IL2CppResolveIcall;
         return new UnmanagedFunctionReference(funcPtr);
     }
     
-    private static KnownFunctionReference ResolveKeyFunction(string function)
+    private static KnownFunctionReference ResolveKeyFunction(string function) // DONT FUCKING TOUCH THIS, IT WORKS, I KNOW IT DOES, KYS, NOBODY NEEDS CONTEXT IN HERE
     {
         if (function == "il2cpp_codegen_initialize_method" ||
             function == "il2cpp_codegen_initialize_runtime_metadata" ||
@@ -377,5 +451,18 @@ public static class IsilLifter
         if (function == "il2cpp_vm_object_is_inst")
             return KnownFunctionReference.AddrPInvokeLookup;
         return new KnownFunctionReference(IL2CppKeyFunction.Error);
+    }
+
+    private static int GetWordSize(Cpp2IlInstructionSet instructionSet)
+    {
+        return instructionSet switch
+        {
+            X86InstructionSet => 4,
+            ArmV7InstructionSet => 4,
+            WasmInstructionSet => 4,
+            NewArmV8InstructionSet => 8,
+            Arm64InstructionSet => 8,
+          _ => 8
+        };
     }
 }
