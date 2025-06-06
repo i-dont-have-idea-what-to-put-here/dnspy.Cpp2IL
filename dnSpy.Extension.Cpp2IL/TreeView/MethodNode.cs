@@ -33,7 +33,7 @@ public class MethodNode : DsDocumentNode, IDecompileSelf
     
     public bool IsStatic => (Context.Attributes & MethodAttributes.Static) != 0;
     
-    public string DisplayName => $"{Context.ReturnTypeContext.Name} {Context.DeclaringType?.FullName}::{Context.Name}({string.Join(',', Context.Parameters.Select(p => $"{p.ParameterType.GetName()} {p.ParameterName}"))})";
+    public string DisplayName => $"{Context.ReturnType.Name} {Context.DeclaringType?.FullName}::{Context.Name}({string.Join(',', Context.Parameters.Select(p => $"{p.ParameterType.Name} {p.ParameterName}"))})";
     
     public override Guid Guid => MyGuid;
     protected override ImageReference GetIcon(IDotNetImageService dnImgMgr) 
@@ -201,7 +201,7 @@ public class MethodNode : DsDocumentNode, IDecompileSelf
         write.Write(def.Attributes.HasFlag(MethodAttributes.Public) ? "public " : "private ", BoxedTextColor.Keyword);
         write.Write(def.IsStatic ? "static " : string.Empty, BoxedTextColor.Keyword);
         if (def.RawReturnType?.Type != Il2CppTypeEnum.IL2CPP_TYPE_VOID)
-            write.Write(def.ReturnType?.ToString() ?? string.Empty, new Cpp2ILTypeDefReference(Context.ReturnTypeContext.Definition), DecompilerReferenceFlags.None, BoxedTextColor.Type);
+            write.Write(def.ReturnType?.ToString() ?? string.Empty, new Cpp2ILTypeDefReference(Context.ReturnType.Definition), DecompilerReferenceFlags.None, BoxedTextColor.Type);
         else
             write.Write("void", BoxedTextColor.Keyword);
         write.Write(" ", BoxedTextColor.Local);
@@ -214,7 +214,7 @@ public class MethodNode : DsDocumentNode, IDecompileSelf
             {
                 if (!first)
                     write.Write(", ", BoxedTextColor.Local);
-                write.Write(parameter.ParameterTypeContext.Name, new Cpp2ILTypeDefReference(parameter.ParameterTypeContext.Definition), DecompilerReferenceFlags.None, BoxedTextColor.Type);
+                write.Write(parameter.ParameterType.Name, new Cpp2ILTypeDefReference(parameter.ParameterType.Definition), DecompilerReferenceFlags.None, BoxedTextColor.Type);
                 write.Write(" ", BoxedTextColor.Local);
                 write.Write(parameter.ParameterName, BoxedTextColor.Local);
                 first = false;

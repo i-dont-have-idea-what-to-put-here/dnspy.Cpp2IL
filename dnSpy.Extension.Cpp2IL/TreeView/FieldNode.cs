@@ -21,13 +21,13 @@ public class FieldNode : DsDocumentNode, IDecompileSelf
 
     public new readonly FieldAnalysisContext Context;
 
-    public bool IsStatic => (Context.FieldAttributes & FieldAttributes.Static) != 0;
+    public bool IsStatic => (Context.Attributes & FieldAttributes.Static) != 0;
     
-    public string DisplayName => $"{Context.FieldType.GetName()} {Context.DeclaringType.FullName}::{Context.FieldName}";
+    public string DisplayName => $"{Context.FieldType!.Name} {Context.DeclaringType.FullName}::{Context.BackingData?.Field.Name}"; // Context.FieldName
     
     public override Guid Guid => MyGuid;
     protected override ImageReference GetIcon(IDotNetImageService dnImgMgr) 
-        => Context.FieldAttributes.HasFlag(FieldAttributes.Public) ? DsImages.FieldPublic : DsImages.FieldPrivate;
+        => Context.Attributes.HasFlag(FieldAttributes.Public) ? DsImages.FieldPublic : DsImages.FieldPrivate;
 
     protected override void WriteCore(ITextColorWriter output, IDecompiler decompiler, DocumentNodeWriteOptions options)
     {
@@ -61,9 +61,9 @@ public class FieldNode : DsDocumentNode, IDecompileSelf
             if (Context.IsStatic)
                 write.Write("static ", BoxedTextColor.Keyword);
         }
-        write.Write(Context.FieldType!.GetName(), new Cpp2ILTypeDefReference(Context.FieldTypeContext.Definition), DecompilerReferenceFlags.None, BoxedTextColor.Type);
+        write.Write(Context.FieldType!.Name, new Cpp2ILTypeDefReference(Context.FieldType.Definition), DecompilerReferenceFlags.None, BoxedTextColor.Type);
         write.Write(" ", BoxedTextColor.Local);
-        write.Write(Context.FieldName, this, DecompilerReferenceFlags.None, BoxedTextColor.InstanceField);
+        write.Write(Context.BackingData?.Field.Name ?? "UnknownField", this, DecompilerReferenceFlags.None, BoxedTextColor.InstanceField);
         write.WriteLine(";", BoxedTextColor.Local);
         return true;
     }

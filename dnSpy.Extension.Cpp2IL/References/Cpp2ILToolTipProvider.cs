@@ -79,7 +79,7 @@ sealed class Cpp2ILToolTipProvider : IDocumentViewerToolTipProvider
 
     private static void DisplayField(FieldAnalysisContext context, ICodeToolTipWriter write)
     {
-        write.Write(TextColor.Type, context.FieldType.GetName());
+        write.Write(TextColor.Type, context.FieldType.Name);
         write.Write(TextColor.Punctuation, " ");
         write.Write(TextColor.Type, context.DeclaringType.FullName);
         write.Write(TextColor.Punctuation, "::");

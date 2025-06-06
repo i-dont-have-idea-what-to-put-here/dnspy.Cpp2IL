@@ -52,7 +52,7 @@ sealed class Cpp2ILTreeNodeDataFinder : IDocumentTreeNodeDataFinder
             {
                 var method = methodReference2.Method;
                 var decType = method.DeclaringType;
-                var ty = documentNode.IlDocument.Context.AllTypes.First(_ => _.TypeNamespace == decType.Namespace && _.Name == decType.Name);
+                var ty = documentNode.IlDocument.Context.AllTypes.First(_ => _.Namespace == decType.Namespace && _.Name == decType.Name);
                 var typeNode = documentNode.SearchType(ty);
                 if (typeNode == null)
                     return null;
