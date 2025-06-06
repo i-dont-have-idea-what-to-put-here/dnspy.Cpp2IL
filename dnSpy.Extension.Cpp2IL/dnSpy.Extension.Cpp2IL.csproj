@@ -9,6 +9,7 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <RootNamespace>Cpp2ILAdapter</RootNamespace>
         <LangVersion>preview</LangVersion>
+        <TargetFrameworks>net8.0-windows</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -24,7 +25,7 @@
     
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
         <Copy SourceFiles="$(TargetPath)"
-              DestinationFolder="D:\Tools\dnspy\bin\Extensions\"
+              DestinationFolder="C:\DnSpyEx\bin\Extensions\"
               SkipUnchangedFiles="true" />
     </Target>
 </Project>
