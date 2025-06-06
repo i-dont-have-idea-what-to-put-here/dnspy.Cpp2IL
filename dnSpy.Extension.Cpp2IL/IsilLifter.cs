@@ -195,7 +195,7 @@ public static class IsilLifter
             case IsilMnemonic.Interrupt:
             case IsilMnemonic.NotImplemented:
             default:
-                return new Unsupported(instruction.ToString());
+                return new Unsupported(instruction.ToString() + " : " + instruction.OpCode.Mnemonic.ToString());
         }
     }
 
