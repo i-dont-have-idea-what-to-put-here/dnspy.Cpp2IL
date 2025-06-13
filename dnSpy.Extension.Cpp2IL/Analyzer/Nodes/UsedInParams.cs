@@ -19,7 +19,7 @@ public class UsedInParams(TreeView.TypeNode type) : SearchNode
         {
             foreach (var methodNode in types[i].GetTreeNodeData.OfType<TreeView.MethodNode>())
             {
-                if (methodNode.Context.Parameters.Any(p => p.ParameterType == type.Context))
+                if (methodNode.Context.Parameters.Any(p => p.ParameterTypeContext == type.Context))
                     yield return new MethodNode(methodNode);
             }
         }

@@ -23,7 +23,7 @@ public class FieldNode : DsDocumentNode, IDecompileSelf
 
     public bool IsStatic => (Context.Attributes & FieldAttributes.Static) != 0;
     
-    public string DisplayName => $"{Context.FieldType!.Name} {Context.DeclaringType.FullName}::{Context.BackingData?.Field.Name}"; // Context.FieldName
+    public string DisplayName => $"{Context.FieldTypeContext!.Name} {Context.DeclaringType.FullName}::{Context.BackingData?.Field.Name}"; // Context.FieldName
     
     public override Guid Guid => MyGuid;
     protected override ImageReference GetIcon(IDotNetImageService dnImgMgr) 
@@ -61,7 +61,7 @@ public class FieldNode : DsDocumentNode, IDecompileSelf
             if (Context.IsStatic)
                 write.Write("static ", BoxedTextColor.Keyword);
         }
-        write.Write(Context.FieldType!.Name, new Cpp2ILTypeDefReference(Context.FieldType.Definition), DecompilerReferenceFlags.None, BoxedTextColor.Type);
+        write.Write(Context.FieldTypeContext!.Name, new Cpp2ILTypeDefReference(Context.FieldTypeContext.Definition), DecompilerReferenceFlags.None, BoxedTextColor.Type);
         write.Write(" ", BoxedTextColor.Local);
         write.Write(Context.BackingData?.Field.Name ?? "UnknownField", this, DecompilerReferenceFlags.None, BoxedTextColor.InstanceField);
         write.WriteLine(";", BoxedTextColor.Local);

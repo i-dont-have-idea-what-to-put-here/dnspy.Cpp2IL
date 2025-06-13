@@ -35,15 +35,15 @@ public class TypeNode : DsDocumentNode, IDecompileSelf, IReflect
 
     public string DisplayName => Context.FullName;
     
-    public bool IsAbstract => (Context.Attributes & TypeAttributes.Abstract) != 0;
-    public bool IsSealed => (Context.Attributes & TypeAttributes.Sealed) != 0;
+    public bool IsAbstract => (Context.TypeAttributes & TypeAttributes.Abstract) != 0;
+    public bool IsSealed => (Context.TypeAttributes & TypeAttributes.Sealed) != 0;
     public bool IsInternal => IsAbstract && IsSealed;
-    public bool IsInterface =>(Context.Attributes & TypeAttributes.Interface) != 0;
-    public bool IsPrivate => (Context.Attributes & TypeAttributes.NestedPrivate) != 0 ;
-    public bool IsPublic => (Context.Attributes & TypeAttributes.Public) != 0
-                            || (Context.Attributes & TypeAttributes.NestedPublic) != 0 ;
-    public bool IsStatic => (Context.Attributes & TypeAttributes.Abstract) != 0 
-                            && (Context.Attributes & TypeAttributes.Sealed) != 0;
+    public bool IsInterface =>(Context.TypeAttributes & TypeAttributes.Interface) != 0;
+    public bool IsPrivate => (Context.TypeAttributes & TypeAttributes.NestedPrivate) != 0 ;
+    public bool IsPublic => (Context.TypeAttributes & TypeAttributes.Public) != 0
+                            || (Context.TypeAttributes & TypeAttributes.NestedPublic) != 0 ;
+    public bool IsStatic => (Context.TypeAttributes & TypeAttributes.Abstract) != 0 
+                            && (Context.TypeAttributes & TypeAttributes.Sealed) != 0;
     public bool IsValueType => Context.IsValueType;
     
     private TreeNodeData[]? _treeNodeData;
@@ -146,7 +146,7 @@ public class TypeNode : DsDocumentNode, IDecompileSelf, IReflect
             write.Write("enum ", BoxedTextColor.Keyword);
             write.Write(Context.Name, BoxedTextColor.Type);
             write.Write(" : ", BoxedTextColor.Punctuation);
-            write.WriteLine(Context.Fields[0]?.FieldType?.Name ?? string.Empty, BoxedTextColor.Type);
+            write.WriteLine(Context.Fields[0]?.FieldTypeContext?.Name ?? string.Empty, BoxedTextColor.Type);
             write.WriteLine("{", BoxedTextColor.Punctuation);
             write.IncreaseIndent();
             for (var i = 1; i < Context.Fields.Count; i++)

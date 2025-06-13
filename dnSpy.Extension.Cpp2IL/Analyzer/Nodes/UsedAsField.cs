@@ -19,7 +19,7 @@ public class UsedAsField(TreeView.TypeNode type) : SearchNode
         {
             foreach (var fieldNode in types[i].GetTreeNodeData.OfType<TreeView.FieldNode>())
             {
-                if (fieldNode.Context.FieldType == type.Context)
+                if (fieldNode.Context.FieldTypeContext == type.Context)
                     yield return new FieldNode(fieldNode);
             }
         }
