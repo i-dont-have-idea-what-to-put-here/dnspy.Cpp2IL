@@ -83,7 +83,7 @@ public class DataFlowAnalysis : BasePass
             {
                 if (args[i] is Variable { Type: null } var)
                 {
-                    var.Type = p[i].ParameterType;
+                    var.Type = p[i].ParameterTypeContext;
                     _success = true;
                 }
             }

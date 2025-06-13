@@ -146,7 +146,7 @@ public class TypeNode : DsDocumentNode, IDecompileSelf, IReflect
             write.Write("enum ", BoxedTextColor.Keyword);
             write.Write(Context.Name, BoxedTextColor.Type);
             write.Write(" : ", BoxedTextColor.Punctuation);
-            write.WriteLine(Context.Fields[0]?.FieldTypeContext?.Name ?? string.Empty, BoxedTextColor.Type);
+            write.WriteLine(Context.Fields[0]?.FieldType?.GetName() ?? string.Empty, BoxedTextColor.Type);
             write.WriteLine("{", BoxedTextColor.Punctuation);
             write.IncreaseIndent();
             for (var i = 1; i < Context.Fields.Count; i++)

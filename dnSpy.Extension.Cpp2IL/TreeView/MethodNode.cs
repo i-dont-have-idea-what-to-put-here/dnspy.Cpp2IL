@@ -33,7 +33,7 @@ public class MethodNode : DsDocumentNode, IDecompileSelf
     
     public bool IsStatic => (Context.Attributes & MethodAttributes.Static) != 0;
     
-    public string DisplayName => $"{Context.ReturnTypeContext.Name} {Context.DeclaringType?.FullName}::{Context.Name}({string.Join(',', Context.Parameters.Select(p => $"{p.ParameterTypeContext.Name} {p.ParameterName}"))})";
+    public string DisplayName => $"{Context.ReturnTypeContext.Name} {Context.DeclaringType?.FullName}::{Context.Name}({string.Join(',', Context.Parameters.Select(p => $"{p.ParameterType.GetName()} {p.ParameterName}"))})";
     
     public override Guid Guid => MyGuid;
     protected override ImageReference GetIcon(IDotNetImageService dnImgMgr) 

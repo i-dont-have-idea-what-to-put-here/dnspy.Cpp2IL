@@ -19,7 +19,7 @@ public class ReturnedInMethods(TreeView.TypeNode type) : SearchNode
         {
             foreach (var methodNode in types[i].GetTreeNodeData.OfType<TreeView.MethodNode>())
             {
-                if (methodNode.Context.ReturnType == type.Context)
+                if (methodNode.Context.ReturnTypeContext == type.Context)
                     yield return new MethodNode(methodNode);
             }
         }
