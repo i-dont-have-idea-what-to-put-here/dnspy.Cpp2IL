@@ -23,7 +23,7 @@ public class FieldNode : DsDocumentNode, IDecompileSelf
 
     public bool IsStatic => (Context.FieldAttributes & FieldAttributes.Static) != 0;
     
-    public string DisplayName => $"{Context.FieldType.GetName()} {Context.DeclaringType.FullName}::{Context.FieldName}"; // Context.FieldName
+    public string DisplayName => $"{Context.FieldType.GetName()} {Context.DeclaringType.FullName}::{Context.FieldName}";
     
     public override Guid Guid => MyGuid;
     protected override ImageReference GetIcon(IDotNetImageService dnImgMgr) 

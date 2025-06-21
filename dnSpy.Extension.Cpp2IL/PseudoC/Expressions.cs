@@ -42,19 +42,9 @@ public sealed record Expression(ExpressionKind Kind, IEmit? Left = null, IEmit? 
             case ExpressionKind.CompareGe:
             case ExpressionKind.CompareLt:
             case ExpressionKind.CompareLe:
-            case ExpressionKind.Move:
             case ExpressionKind.Exchange:
-            case ExpressionKind.ShiftStack:
-            case ExpressionKind.Push:
-            case ExpressionKind.Pop:
-            case ExpressionKind.SignExtend:
-            case ExpressionKind.Interrupt:
             case ExpressionKind.Negate:
-            case ExpressionKind.Multiply:
-            case ExpressionKind.Divide:
-            case ExpressionKind.ShiftLeft:
-            case ExpressionKind.ShiftRight:
-            case ExpressionKind.Subtract:
+            case ExpressionKind.SignExtend:
             case ExpressionKind.MemberAccess:
                 Left?.Write(output);
                 output.Write(GetOperator(Kind), BoxedTextColor.Operator);
@@ -176,6 +166,8 @@ public sealed record Expression(ExpressionKind Kind, IEmit? Left = null, IEmit? 
             IsilMnemonic.JumpIfGreaterOrEqual => ExpressionKind.CompareGe,
             IsilMnemonic.JumpIfLess => ExpressionKind.CompareLt,
             IsilMnemonic.JumpIfLessOrEqual => ExpressionKind.CompareLe,
+            IsilMnemonic.JumpIfSign => ExpressionKind.CompareSign,
+            IsilMnemonic.JumpIfNotSign => ExpressionKind.CompareNotSign,
             _ => throw new ArgumentOutOfRangeException()
         };
         return this;
@@ -198,6 +190,7 @@ public sealed record Expression(ExpressionKind Kind, IEmit? Left = null, IEmit? 
         ExpressionKind.Or => true,
         ExpressionKind.Xor => true,
         ExpressionKind.And => true,
+        ExpressionKind.Negate => true,
         _ => false
     };
     
@@ -223,19 +216,11 @@ public sealed record Expression(ExpressionKind Kind, IEmit? Left = null, IEmit? 
             ExpressionKind.CompareLt => " < ",
             ExpressionKind.CompareLe => " <= ",
             ExpressionKind.MemberAccess => ".",
-            ExpressionKind.Move => " = ", // why = ?
-            ExpressionKind.Exchange => " <-> ",
-            ExpressionKind.ShiftStack => " >> ",
-            ExpressionKind.Push => " -> ",
-            ExpressionKind.Pop => " <- ",
-            ExpressionKind.SignExtend => " :> ",
-            ExpressionKind.Interrupt => " ! ",
             ExpressionKind.Negate => " - ",
-            ExpressionKind.Multiply => " * ",
-            ExpressionKind.Divide => " / ",
-            ExpressionKind.ShiftLeft => " << ",
-            ExpressionKind.ShiftRight => " >> ",
-            ExpressionKind.Subtract => " - ",
+            ExpressionKind.SignExtend => " :> ",
+            ExpressionKind.Exchange => " <-> ",
+            ExpressionKind.CompareSign => " < 0 ",
+            ExpressionKind.CompareNotSign => " >= 0 ",
             _ => throw new NotImplementedException()
         };
     }   
@@ -246,33 +231,22 @@ public enum ExpressionKind : byte
     Nop,
     Assign,
     Deref,
-    Add, Sub, Mul, Div, Rem,
+    Add, Sub, Mul, Div, Rem, Negate,
     Or, And, Xor,
     Not,
     Shl, Shr,
     If,
     Call,
     Return,
-    
+    Exchange,
+    SignExtend,
+
+
     Compare,
     CompareEq, CompareNeq, 
     CompareGt, CompareGe, CompareLt, CompareLe,
+    CompareSign, CompareNotSign,
     Goto,
     
     MemberAccess,
-    
-    // ISIL specific operations
-    Move,
-    Exchange,
-    ShiftStack,
-    Push,
-    Pop,
-    SignExtend,
-    Interrupt,
-    Negate,
-    Multiply,
-    Divide,
-    ShiftLeft,
-    ShiftRight,
-    Subtract
 }

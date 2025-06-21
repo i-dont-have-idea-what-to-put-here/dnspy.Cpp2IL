@@ -187,7 +187,7 @@ public static class IsilLifter
                 var expr = TransformOperand(instruction.Operands[1]);
                 if (expr is Expression { Kind: ExpressionKind.Deref, Left: var e })
                     expr = e;
-                return new Expression(ExpressionKind.Assign, TransformOperand(instruction.Operands[0]), expr, instruction.InstructionIndex);
+                return new Expression(ExpressionKind.Assign, TransformOperand(instruction.Operands[0]), expr);
             }
             
             case IsilMnemonic.Nop:
