@@ -196,26 +196,22 @@ public static class IsilLifter
             case IsilMnemonic.Exchange:
             {
                 // Exchange: a, b -> temp = a, a = b, b = temp (bad realization) or just exchange
-                var op1 = TransformOperand(operands[0]);
-                var op2 = TransformOperand(operands[1]);
-                return new Expression(ExpressionKind.Exchange, op1, op2, instruction.InstructionIndex);
+                return new Expression(ExpressionKind.Exchange, TransformOperand(operands[0]), TransformOperand(operands[1]), instruction.InstructionIndex);
             }
             
             case IsilMnemonic.ShiftStack:
             {
-                var offset = (int)((IsilImmediateOperand)operands[0].Data).Value;
                 return new Expression(ExpressionKind.Assign, 
                     new Register("rsp"), 
                     new Expression(ExpressionKind.Add, 
                         new Register("rsp"), 
-                        new Immediate(offset), 
+                        new Immediate((int)((IsilImmediateOperand)operands[0].Data).Value), 
                         instruction.InstructionIndex), 
                     instruction.InstructionIndex);
             }
             
             case IsilMnemonic.Push:
             {
-                var value = TransformOperand(operands[0]);
                 var stackPtr = new Register("rsp");
                 var decrement = new Expression(ExpressionKind.Assign, 
                     stackPtr, 
@@ -225,18 +221,17 @@ public static class IsilLifter
                         instruction.InstructionIndex), 
                     instruction.InstructionIndex);
                 var store = new Expression(ExpressionKind.Assign, 
-                    new Expression(ExpressionKind.Deref, stackPtr), 
-                    value, 
+                    new Expression(ExpressionKind.Deref, stackPtr),
+                    TransformOperand(operands[0]), 
                     instruction.InstructionIndex);
                 return new InlineEmitBlock("; ") { Items = { decrement, store } };
             }
             
             case IsilMnemonic.Pop:
             {
-                var dest = TransformOperand(operands[0]);
                 var stackPtr = new Register("rsp");
-                var load = new Expression(ExpressionKind.Assign, 
-                    dest, 
+                var load = new Expression(ExpressionKind.Assign,
+                    TransformOperand(operands[0]), 
                     new Expression(ExpressionKind.Deref, stackPtr), 
                     instruction.InstructionIndex);
                 var increment = new Expression(ExpressionKind.Assign, 
@@ -251,12 +246,10 @@ public static class IsilLifter
             
             case IsilMnemonic.SignExtend:
             {
-                var dest = TransformOperand(operands[0]);
-                var src = TransformOperand(operands[1]);
                 return new Expression(ExpressionKind.Assign,
-                    dest,
+                    TransformOperand(operands[0]),
                     new Expression(ExpressionKind.SignExtend,
-                        src,
+                        TransformOperand(operands[1]),
                         Index: instruction.InstructionIndex),
                     instruction.InstructionIndex);
             }
