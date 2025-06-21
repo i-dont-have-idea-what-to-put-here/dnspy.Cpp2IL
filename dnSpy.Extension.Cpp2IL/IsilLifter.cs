@@ -389,7 +389,7 @@ public static class IsilLifter
         return new UnmanagedFunctionReference(funcPtr);
     }
     
-    private static KnownFunctionReference ResolveKeyFunction(string function) // DONT FUCKING TOUCH THIS, IT WORKS, I KNOW IT DOES, KYS, NOBODY NEEDS CONTEXT IN HERE
+    private static KnownFunctionReference ResolveKeyFunction(string function)
     {
         if (function == "il2cpp_codegen_initialize_method" ||
             function == "il2cpp_codegen_initialize_runtime_metadata" ||
