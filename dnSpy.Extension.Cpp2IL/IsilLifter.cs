@@ -124,7 +124,7 @@ public static class IsilLifter
             }
             
             case IsilMnemonic.Call:
-            case IsilMnemonic.CallNoReturn: // DONT FUCKING TOUCH THIS, IT WORKS, I KNOW IT DOES, KYS
+            case IsilMnemonic.CallNoReturn:
             {
                 var args = new IEmit[instruction.Operands.Length - 1];
                 for (var i = 1; i < instruction.Operands.Length; i++)

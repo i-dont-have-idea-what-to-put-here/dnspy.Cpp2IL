@@ -241,7 +241,6 @@ public enum ExpressionKind : byte
     Exchange,
     SignExtend,
 
-
     Compare,
     CompareEq, CompareNeq, 
     CompareGt, CompareGe, CompareLt, CompareLe,
